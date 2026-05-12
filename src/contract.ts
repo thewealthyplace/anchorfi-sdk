@@ -302,3 +302,38 @@ export async function fetchBlockHeight(config: ResolvedAnchorFiConfig): Promise<
     return 0;
   }
 }
+
+/** Fetch the aUSD balance of a given address (in micro-aUSD). */
+export async function fetchAusdBalance(
+  config: ResolvedAnchorFiConfig,
+  address: string,
+): Promise<number> {
+  try {
+    const result = await readOnly(
+      config,
+      config.ausdContractName,
+      'get-balance',
+      [standardPrincipalCV(address)],
+    );
+    const json = cvToJSON(result);
+    return Number(json.value?.value ?? 0);
+  } catch {
+    return 0;
+  }
+}
+
+/** Fetch the total aUSD supply in circulation (in micro-aUSD). */
+export async function fetchAusdTotalSupply(config: ResolvedAnchorFiConfig): Promise<number> {
+  try {
+    const result = await readOnly(
+      config,
+      config.ausdContractName,
+      'get-total-supply',
+      [],
+    );
+    const json = cvToJSON(result);
+    return Number(json.value?.value ?? 0);
+  } catch {
+    return 0;
+  }
+}
