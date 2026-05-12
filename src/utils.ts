@@ -72,3 +72,29 @@ export function validateAddress(address: string): boolean {
   const BASE58_RE = /^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{20,50}$/;
   return BASE58_RE.test(body);
 }
+
+/**
+ * Convert a micro-STX amount to micro-aUSD using an oracle price.
+ * @param microStx   Amount in micro-STX
+ * @param rawPrice   Oracle price (6-decimal precision)
+ */
+export function stxToUsd(microStx: number | bigint, rawPrice: number): number {
+  return Math.floor((Number(microStx) * rawPrice) / PRICE_PRECISION);
+}
+
+/**
+ * Calculate the maximum aUSD that can be borrowed against collateral.
+ * Applies the 70% LTV ratio.
+ */
+export function calculateMaxBorrow(collateralUsd: number): number {
+  return Math.floor((collateralUsd * LTV_RATIO) / RATIO_PRECISION);
+}
+
+/**
+ * Compute the health factor for a position.
+ * Returns 0 when there is no debt (the position is closed).
+ */
+export function calculateHealthFactor(collateralUsd: number, totalOwed: number): number {
+  if (totalOwed === 0) return 0;
+  return Math.floor((collateralUsd * RATIO_PRECISION) / totalOwed);
+}
