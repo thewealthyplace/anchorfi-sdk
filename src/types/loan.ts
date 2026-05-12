@@ -11,3 +11,20 @@ export interface Loan {
   /** Block height of the last interest accrual */
   lastAccrualBlock: number;
 }
+
+export type LoanEventType = 'borrow' | 'repay' | 'liquidate';
+
+export interface LoanEvent {
+  actionType: LoanEventType;
+  /** Amount involved in this event, in micro-aUSD */
+  actionAmount: number;
+  /** Block height when the event occurred */
+  actionBlock: number;
+  /** Total debt remaining after this event, in micro-aUSD */
+  totalDebt: number;
+}
+
+export interface LoanEventSummary {
+  eventCount: number;
+  lastEvent: LoanEvent;
+}
