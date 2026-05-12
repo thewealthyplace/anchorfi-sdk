@@ -250,3 +250,19 @@ export async function fetchVaultPosition(
     return null;
   }
 }
+
+/** Fetch the total STX collateral held in the vault (in micro-STX). */
+export async function fetchTotalCollateral(config: ResolvedAnchorFiConfig): Promise<number> {
+  try {
+    const result = await readOnly(
+      config,
+      config.collateralVaultContractName,
+      'get-total-collateral',
+      [],
+    );
+    const json = cvToJSON(result);
+    return Number(json.value?.value ?? 0);
+  } catch {
+    return 0;
+  }
+}
