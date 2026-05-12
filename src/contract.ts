@@ -159,3 +159,59 @@ export async function fetchLoanEvent(
     return null;
   }
 }
+
+/**
+ * Fetch a summary of a borrower's loan activity.
+ * Returns null if the borrower has no recorded events.
+ */
+export async function fetchLoanEventSummary(
+  config: ResolvedAnchorFiConfig,
+  borrower: string,
+): Promise<LoanEventSummary | null> {
+  try {
+    const result = await readOnly(
+      config,
+      config.lendingPoolContractName,
+      'get-loan-event-summary',
+      [standardPrincipalCV(borrower)],
+    );
+    const json = cvToJSON(result);
+    const v = json.value?.value;
+    if (!v) return null;
+
+    const last = v['last-event']?.value;
+    if (!last) return null;
+
+    return {
+      eventCount: Number(v['event-count']?.value ?? 0),
+      lastEvent: {
+        actionType: parseLoanEventType(Number(last['action-type']?.value ?? 0)),
+        actionAmount: Number(last['action-amount']?.value ?? 0),
+        actionBlock: Number(last['action-block']?.value ?? 0),
+        totalDebt: Number(last['total-debt']?.value ?? 0),
+      },
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fetch all loan events for a borrower in order.
+ * @param concurrency  Max parallel requests (default 5)
+ */
+export async function fetchAllLoanEvents(
+  config: ResolvedAnchorFiConfig,
+  borrower: string,
+  concurrency = 5,
+): Promise<LoanEvent[]> {
+  const count = await fetchLoanEventCount(config, borrower);
+  if (count === 0) return [];
+
+  const tasks = Array.from({ length: count }, (_, i) => () =>
+    fetchLoanEvent(config, borrower, i),
+  );
+
+  const results = await withConcurrency(tasks, concurrency);
+  return results.filter((e): e is LoanEvent => e !== null);
+}
