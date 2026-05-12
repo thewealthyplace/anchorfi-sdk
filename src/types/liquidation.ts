@@ -9,3 +9,9 @@ export interface LiquidationEvent {
   /** Block height when the liquidation occurred */
   blockHeight: number;
 }
+
+export interface LiquidatorStats {
+  totalLiquidations: number;
+  /** Total profit accumulated from liquidation bonuses, in micro-STX */
+  totalProfit: number;
+}
