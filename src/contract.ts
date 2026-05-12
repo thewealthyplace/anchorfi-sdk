@@ -49,3 +49,42 @@ export async function fetchLoan(
     return null;
   }
 }
+
+/**
+ * Fetch the health factor for a borrower's loan.
+ * Returns 0 if the borrower has no loan. Raw value is (collateral_usd / total_owed) * 1000.
+ * A value below 800 means the position is liquidatable.
+ */
+export async function fetchHealthFactor(
+  config: ResolvedAnchorFiConfig,
+  borrower: string,
+): Promise<number> {
+  try {
+    const result = await readOnly(
+      config,
+      config.lendingPoolContractName,
+      'get-health-factor',
+      [standardPrincipalCV(borrower)],
+    );
+    const json = cvToJSON(result);
+    return Number(json.value?.value ?? 0);
+  } catch {
+    return 0;
+  }
+}
+
+/** Fetch the total aUSD borrowed across all loans (in micro-aUSD). */
+export async function fetchTotalBorrowed(config: ResolvedAnchorFiConfig): Promise<number> {
+  try {
+    const result = await readOnly(
+      config,
+      config.lendingPoolContractName,
+      'get-total-borrowed',
+      [],
+    );
+    const json = cvToJSON(result);
+    return Number(json.value?.value ?? 0);
+  } catch {
+    return 0;
+  }
+}
