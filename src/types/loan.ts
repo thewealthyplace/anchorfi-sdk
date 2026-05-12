@@ -28,3 +28,18 @@ export interface LoanEventSummary {
   eventCount: number;
   lastEvent: LoanEvent;
 }
+
+export type LoanStatus = 'healthy' | 'at_risk' | 'liquidatable' | 'closed';
+
+import { LIQUIDATION_THRESHOLD } from '../constants';
+
+/**
+ * Derive the health status of a loan from its health factor.
+ * The health factor is the raw value from the contract (collateral_usd / total_owed * 1000).
+ */
+export function getLoanStatus(healthFactor: number): LoanStatus {
+  if (healthFactor === 0) return 'closed';
+  if (healthFactor < LIQUIDATION_THRESHOLD) return 'liquidatable';
+  if (healthFactor < LIQUIDATION_THRESHOLD + 50) return 'at_risk';
+  return 'healthy';
+}
