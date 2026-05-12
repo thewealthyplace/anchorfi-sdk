@@ -45,6 +45,11 @@ export function createAnchorFiConfig(config: AnchorFiConfig) {
     collateralVaultContractName,
     lendingPoolContractName,
     liquidationContractName,
+    oracleContractId: `${addr}.${oracleContractName}`,
+    ausdContractId: `${addr}.${ausdContractName}`,
+    collateralVaultContractId: `${addr}.${collateralVaultContractName}`,
+    lendingPoolContractId: `${addr}.${lendingPoolContractName}`,
+    liquidationContractId: `${addr}.${liquidationContractName}`,
   };
 }
 
