@@ -266,3 +266,39 @@ export async function fetchTotalCollateral(config: ResolvedAnchorFiConfig): Prom
     return 0;
   }
 }
+
+import type { OraclePrice } from './types/oracle';
+
+/**
+ * Fetch the current STX/USD price from the oracle.
+ * Returns null if the price is stale or the oracle is not yet initialised.
+ */
+export async function fetchOraclePrice(
+  config: ResolvedAnchorFiConfig,
+): Promise<OraclePrice | null> {
+  try {
+    const [priceResult, updatedResult] = await Promise.all([
+      readOnly(config, config.oracleContractName, 'get-price-unsafe', []),
+      readOnly(config, config.oracleContractName, 'get-last-updated', []),
+    ]);
+
+    const rawPrice = Number(cvToJSON(priceResult).value?.value ?? 0);
+    const lastUpdatedBlock = Number(cvToJSON(updatedResult).value?.value ?? 0);
+
+    if (rawPrice === 0) return null;
+    return { rawPrice, lastUpdatedBlock };
+  } catch {
+    return null;
+  }
+}
+
+/** Fetch the current Stacks block height from the API. */
+export async function fetchBlockHeight(config: ResolvedAnchorFiConfig): Promise<number> {
+  try {
+    const res = await fetch(`${config.stacksApiUrl}/v2/info`);
+    const data = await res.json();
+    return Number(data.burn_block_height ?? data.stacks_tip_height ?? 0);
+  } catch {
+    return 0;
+  }
+}
