@@ -30,3 +30,20 @@ export function ausdToMicro(ausd: number): bigint {
 export function rawPriceToUsd(rawPrice: number): number {
   return rawPrice / PRICE_PRECISION;
 }
+
+/** Format a micro-STX amount as a human-readable string, e.g. "1.5 STX". */
+export function formatStx(micro: number | bigint, decimals = 6): string {
+  const stx = microToStx(micro);
+  return `${parseFloat(stx.toFixed(decimals))} STX`;
+}
+
+/** Format a micro-aUSD amount as a human-readable string, e.g. "100.00 aUSD". */
+export function formatAusd(micro: number | bigint, decimals = 2): string {
+  const ausd = microToAusd(micro);
+  return `${ausd.toFixed(decimals)} aUSD`;
+}
+
+/** Format a raw oracle price as a USD string, e.g. 2_500_000 → "$2.50". */
+export function formatUsdPrice(rawPrice: number, decimals = 2): string {
+  return `$${rawPriceToUsd(rawPrice).toFixed(decimals)}`;
+}
