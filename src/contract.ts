@@ -215,3 +215,38 @@ export async function fetchAllLoanEvents(
   const results = await withConcurrency(tasks, concurrency);
   return results.filter((e): e is LoanEvent => e !== null);
 }
+
+export interface VaultPosition {
+  address: string;
+  /** Total deposited micro-STX */
+  deposited: number;
+  /** Locked collateral, in micro-STX */
+  locked: number;
+  /** Available (free) collateral, in micro-STX */
+  available: number;
+}
+
+/** Fetch the collateral vault position for a Stacks address. Returns null if none exists. */
+export async function fetchVaultPosition(
+  config: ResolvedAnchorFiConfig,
+  address: string,
+): Promise<VaultPosition | null> {
+  try {
+    const result = await readOnly(
+      config,
+      config.collateralVaultContractName,
+      'get-vault',
+      [standardPrincipalCV(address)],
+    );
+    const json = cvToJSON(result);
+    const v = json.value?.value;
+    if (!v) return null;
+
+    const deposited = Number(v['deposited']?.value ?? 0);
+    const locked = Number(v['locked']?.value ?? 0);
+
+    return { address, deposited, locked, available: deposited - locked };
+  } catch {
+    return null;
+  }
+}
