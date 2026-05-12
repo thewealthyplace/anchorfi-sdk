@@ -25,3 +25,8 @@ export function microToAusd(micro: number | bigint): number {
 export function ausdToMicro(ausd: number): bigint {
   return BigInt(Math.round(ausd * 1_000_000));
 }
+
+/** Convert a raw oracle price to a human-readable USD value (e.g. 2_500_000 → 2.50). */
+export function rawPriceToUsd(rawPrice: number): number {
+  return rawPrice / PRICE_PRECISION;
+}
