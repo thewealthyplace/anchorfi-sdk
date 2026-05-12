@@ -1,6 +1,6 @@
 {
   "name": "anchorfi-sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TypeScript SDK for interacting with AnchorFi lending protocol contracts on the Stacks blockchain",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -12,7 +12,9 @@
       "require": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -22,7 +24,17 @@
     "lint": "eslint src tests --ext .ts",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["stacks", "blockchain", "bitcoin", "lending", "defi", "stx", "ausd", "sdk", "anchorfi"],
+  "keywords": [
+    "stacks",
+    "blockchain",
+    "bitcoin",
+    "lending",
+    "defi",
+    "stx",
+    "ausd",
+    "sdk",
+    "anchorfi"
+  ],
   "author": "thewealthyplace",
   "license": "MIT",
   "repository": {
