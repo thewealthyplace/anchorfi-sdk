@@ -393,3 +393,37 @@ export async function fetchLiquidatorStats(
     return { totalLiquidations: 0, totalProfit: 0 };
   }
 }
+
+/** Fetch the total number of liquidation events recorded on-chain. */
+export async function fetchTotalLiquidations(config: ResolvedAnchorFiConfig): Promise<number> {
+  try {
+    const result = await readOnly(
+      config,
+      config.liquidationContractName,
+      'get-total-liquidations',
+      [],
+    );
+    const json = cvToJSON(result);
+    return Number(json.value?.value ?? 0);
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * Fetch the most recent N liquidation events (newest first).
+ * @param limit  Maximum number of events to return (default 20)
+ */
+export async function fetchRecentLiquidations(
+  config: ResolvedAnchorFiConfig,
+  limit = 20,
+): Promise<LiquidationEvent[]> {
+  const total = await fetchTotalLiquidations(config);
+  if (total === 0) return [];
+
+  const start = Math.max(0, total - limit);
+  const ids = Array.from({ length: total - start }, (_, i) => total - 1 - i);
+
+  const results = await Promise.all(ids.map((id) => fetchLiquidationEvent(config, id)));
+  return results.filter((e): e is LiquidationEvent => e !== null);
+}
