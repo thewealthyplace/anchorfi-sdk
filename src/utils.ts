@@ -98,3 +98,20 @@ export function calculateHealthFactor(collateralUsd: number, totalOwed: number):
   if (totalOwed === 0) return 0;
   return Math.floor((collateralUsd * RATIO_PRECISION) / totalOwed);
 }
+
+/** Return true if a position's health factor is below the liquidation threshold (800). */
+export function isLiquidatable(healthFactor: number): boolean {
+  const LIQUIDATION_THRESHOLD = 800;
+  return healthFactor > 0 && healthFactor < LIQUIDATION_THRESHOLD;
+}
+
+/**
+ * Estimate the interest that will accrue over a number of blocks.
+ * @param principalMicroAusd  Loan principal in micro-aUSD
+ * @param blocksElapsed       Number of Stacks blocks
+ */
+export function calculateInterest(principalMicroAusd: number, blocksElapsed: number): number {
+  return Math.floor(
+    (principalMicroAusd * INTEREST_RATE_PER_BLOCK * blocksElapsed) / INTEREST_PRECISION,
+  );
+}
