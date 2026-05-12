@@ -110,3 +110,52 @@ export async function fetchMaxBorrow(
     return 0;
   }
 }
+
+import type { LoanEvent, LoanEventSummary } from './types/loan';
+
+/** Fetch the total number of loan events recorded for a borrower. */
+export async function fetchLoanEventCount(
+  config: ResolvedAnchorFiConfig,
+  borrower: string,
+): Promise<number> {
+  try {
+    const result = await readOnly(
+      config,
+      config.lendingPoolContractName,
+      'get-loan-event-count',
+      [standardPrincipalCV(borrower)],
+    );
+    const json = cvToJSON(result);
+    return Number(json.value?.value ?? 0);
+  } catch {
+    return 0;
+  }
+}
+
+/** Fetch a specific loan event by its index. Returns null if not found. */
+export async function fetchLoanEvent(
+  config: ResolvedAnchorFiConfig,
+  borrower: string,
+  index: number,
+): Promise<LoanEvent | null> {
+  try {
+    const result = await readOnly(
+      config,
+      config.lendingPoolContractName,
+      'get-loan-event',
+      [standardPrincipalCV(borrower), uintCV(index)],
+    );
+    const json = cvToJSON(result);
+    const v = json.value?.value;
+    if (!v) return null;
+
+    return {
+      actionType: parseLoanEventType(Number(v['action-type']?.value ?? 0)),
+      actionAmount: Number(v['action-amount']?.value ?? 0),
+      actionBlock: Number(v['action-block']?.value ?? 0),
+      totalDebt: Number(v['total-debt']?.value ?? 0),
+    };
+  } catch {
+    return null;
+  }
+}
