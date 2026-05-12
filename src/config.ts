@@ -11,3 +11,9 @@ export interface AnchorFiConfig {
   liquidationContractName?: string;
   stacksApiUrl?: string;
 }
+
+const DEFAULT_ORACLE = 'oracle';
+const DEFAULT_AUSD = 'ausd-token';
+const DEFAULT_VAULT = 'collateral-vault';
+const DEFAULT_POOL = 'lending-pool';
+const DEFAULT_LIQUIDATION = 'liquidation';
