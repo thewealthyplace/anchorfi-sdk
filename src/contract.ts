@@ -337,3 +337,59 @@ export async function fetchAusdTotalSupply(config: ResolvedAnchorFiConfig): Prom
     return 0;
   }
 }
+
+import type { LiquidationEvent, LiquidatorStats } from './types/liquidation';
+
+/** Fetch a single liquidation event by its ID. Returns null if not found. */
+export async function fetchLiquidationEvent(
+  config: ResolvedAnchorFiConfig,
+  eventId: number,
+): Promise<LiquidationEvent | null> {
+  try {
+    const result = await readOnly(
+      config,
+      config.liquidationContractName,
+      'get-liquidation-event',
+      [uintCV(eventId)],
+    );
+    const json = cvToJSON(result);
+    const v = json.value?.value;
+    if (!v) return null;
+
+    return {
+      eventId,
+      liquidator: v['liquidator']?.value ?? '',
+      borrower: v['borrower']?.value ?? '',
+      debtRepaid: Number(v['debt-repaid']?.value ?? 0),
+      collateralSeized: Number(v['collateral-seized']?.value ?? 0),
+      blockHeight: Number(v['block-height']?.value ?? 0),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Fetch statistics for a liquidator address. */
+export async function fetchLiquidatorStats(
+  config: ResolvedAnchorFiConfig,
+  liquidator: string,
+): Promise<LiquidatorStats> {
+  try {
+    const result = await readOnly(
+      config,
+      config.liquidationContractName,
+      'get-liquidator-stats',
+      [standardPrincipalCV(liquidator)],
+    );
+    const json = cvToJSON(result);
+    const v = json.value?.value;
+    if (!v) return { totalLiquidations: 0, totalProfit: 0 };
+
+    return {
+      totalLiquidations: Number(v['total-liquidations']?.value ?? 0),
+      totalProfit: Number(v['total-profit']?.value ?? 0),
+    };
+  } catch {
+    return { totalLiquidations: 0, totalProfit: 0 };
+  }
+}
