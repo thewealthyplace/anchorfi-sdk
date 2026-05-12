@@ -47,3 +47,12 @@ export function formatAusd(micro: number | bigint, decimals = 2): string {
 export function formatUsdPrice(rawPrice: number, decimals = 2): string {
   return `$${rawPriceToUsd(rawPrice).toFixed(decimals)}`;
 }
+
+/**
+ * Truncate a Stacks principal address for display.
+ * e.g. "SP2J6Z…V9EJ"
+ */
+export function truncateAddress(address: string, chars = 6): string {
+  if (address.length <= chars * 2 + 3) return address;
+  return `${address.slice(0, chars)}…${address.slice(-chars)}`;
+}
