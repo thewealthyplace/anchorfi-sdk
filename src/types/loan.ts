@@ -31,7 +31,7 @@ export interface LoanEventSummary {
 
 export type LoanStatus = 'healthy' | 'at_risk' | 'liquidatable' | 'closed';
 
-import { LIQUIDATION_THRESHOLD } from '../constants';
+import { LIQUIDATION_THRESHOLD, RATIO_PRECISION } from '../constants';
 
 /**
  * Derive the health status of a loan from its health factor.
@@ -54,4 +54,24 @@ export function parseLoanEventType(raw: number): LoanEventType {
   if (raw === 1) return 'borrow';
   if (raw === 2) return 'repay';
   return 'liquidate';
+}
+
+/** Estimate blocks until an undercollateralised loan hits the liquidation threshold. Returns null if healthy or no debt. */
+export function blocksUntilLiquidatable(
+  loan: Loan,
+  currentHealthFactor: number,
+): number | null {
+  if (currentHealthFactor < LIQUIDATION_THRESHOLD) return 0;
+  if (loan.principalAmount === 0) return null;
+
+  const INTEREST_RATE_PER_BLOCK = 10;
+  const INTEREST_PRECISION = 1_000_000;
+  const collateralUsd = (currentHealthFactor * totalOwed(loan)) / RATIO_PRECISION;
+  const debtAtThreshold = (collateralUsd * RATIO_PRECISION) / LIQUIDATION_THRESHOLD;
+  const interestNeeded = debtAtThreshold - totalOwed(loan);
+  if (interestNeeded <= 0) return 0;
+
+  return Math.ceil(
+    (interestNeeded * INTEREST_PRECISION) / (loan.principalAmount * INTEREST_RATE_PER_BLOCK),
+  );
 }
