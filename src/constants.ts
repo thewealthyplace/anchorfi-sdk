@@ -15,3 +15,18 @@ export const INTEREST_RATE_PER_BLOCK = 10;
 
 /** Precision divisor for interest calculations */
 export const INTEREST_PRECISION = 1_000_000;
+
+/** Decimal precision used by the oracle price feed (6 decimal places) */
+export const PRICE_PRECISION = 1_000_000;
+
+/** Maximum acceptable age of an oracle price update, in Stacks blocks (~1 day) */
+export const MAX_PRICE_AGE_BLOCKS = 144;
+
+/** Milliseconds per Stacks block (~10 minutes, anchored to Bitcoin) */
+export const MS_PER_BLOCK = 10 * 60 * 1_000;
+
+/** Minimum collateral deposit accepted by the vault, in micro-STX */
+export const MIN_COLLATERAL_MICRO_STX = 1_000_000;
+
+/** aUSD token decimal places */
+export const AUSD_DECIMALS = 6;
