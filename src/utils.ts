@@ -56,3 +56,19 @@ export function truncateAddress(address: string, chars = 6): string {
   if (address.length <= chars * 2 + 3) return address;
   return `${address.slice(0, chars)}…${address.slice(-chars)}`;
 }
+
+/**
+ * Validate a Stacks principal address (standard or contract).
+ * Accepts mainnet (SP, SM) and testnet (ST, SN) prefixes.
+ */
+export function validateAddress(address: string): boolean {
+  if (typeof address !== 'string' || address.length === 0) return false;
+
+  const principal = address.split('.')[0];
+  const VALID_PREFIXES = ['SP', 'SM', 'ST', 'SN'];
+  if (!VALID_PREFIXES.some((prefix) => principal.startsWith(prefix))) return false;
+
+  const body = principal.slice(2);
+  const BASE58_RE = /^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{20,50}$/;
+  return BASE58_RE.test(body);
+}
