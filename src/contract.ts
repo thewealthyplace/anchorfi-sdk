@@ -88,3 +88,25 @@ export async function fetchTotalBorrowed(config: ResolvedAnchorFiConfig): Promis
     return 0;
   }
 }
+
+/**
+ * Calculate the maximum aUSD that can be borrowed against a given STX collateral amount.
+ * @param collateralMicroStx  Collateral in micro-STX
+ */
+export async function fetchMaxBorrow(
+  config: ResolvedAnchorFiConfig,
+  collateralMicroStx: number,
+): Promise<number> {
+  try {
+    const result = await readOnly(
+      config,
+      config.lendingPoolContractName,
+      'get-max-borrow',
+      [uintCV(collateralMicroStx)],
+    );
+    const json = cvToJSON(result);
+    return Number(json.value?.value ?? 0);
+  } catch {
+    return 0;
+  }
+}
