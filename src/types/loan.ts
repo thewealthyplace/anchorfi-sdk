@@ -43,3 +43,15 @@ export function getLoanStatus(healthFactor: number): LoanStatus {
   if (healthFactor < LIQUIDATION_THRESHOLD + 50) return 'at_risk';
   return 'healthy';
 }
+
+/** Compute total debt (principal + accrued interest) for a loan, in micro-aUSD. */
+export function totalOwed(loan: Loan): number {
+  return loan.principalAmount + loan.interestAccrued;
+}
+
+/** Map the uint action-type from the contract to a readable string. */
+export function parseLoanEventType(raw: number): LoanEventType {
+  if (raw === 1) return 'borrow';
+  if (raw === 2) return 'repay';
+  return 'liquidate';
+}
